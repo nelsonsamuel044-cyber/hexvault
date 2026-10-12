@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="id" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HexVault - Portal Game Visual Novel Bahasa Indonesia</title>
+    <title>HexVault - Portal Game Visual Novel</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -21,312 +20,320 @@
                             700: '#6d28d9',
                             800: '#5b21b6',
                             900: '#2e1065',
-                            dark: '#0f0b1e',
-                            card: '#18122b',
-                            cardHover: '#231b3f',
-                            accent: '#ec4899'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        },
+                        dark: '#0f0b1e',
+                        darkAccent: '#1a142e',
+                        border: '#2a2245',
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <!-- Alpine.js untuk Interaktivitas Ringan -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b0819;
-            color: #e2e8f0;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f0b1e;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #3b2d54;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #7c3aed;
-        }
-
-        /* Glassmorphism */
-        .glass-panel {
-            background: rgba(24, 18, 43, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(139, 92, 246, 0.15);
-        }
-
-        .glass-nav {
-            background: rgba(15, 11, 30, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-        }
-
-        /* Glow effects */
-        .glow-purple {
-            box-shadow: 0 0 25px -5px rgba(124, 58, 237, 0.4);
-        }
-        .glow-pink {
-            box-shadow: 0 0 25px -5px rgba(236, 72, 153, 0.4);
-        }
-
-        /* Custom line clamp */
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #0f0b1e; color: #f5f3ff; }
+        .glass { background: rgba(26, 20, 46, 0.8); backdrop-filter: blur(10px); border: 1px solid #2a2245; }
+        .game-card-hover { transition: all 0.3s ease; }
+        .game-card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(124, 58, 237, 0.2); border-color: #a78bfa; }
+        .filter-btn-active { background-color: #7c3aed; color: white; border-color: #a78bfa; }
+        .filter-btn-inactive { background-color: #1a142e; color: #a78bfa; border-color: #2a2245; }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-brand-500 selection:text-white">
+<body x-data="hexvaultData()" x-init="init()" class="min-h-screen">
 
-    <!-- Header Navigation -->
-    <header class="sticky top-0 z-40 glass-nav transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 sm:h-20">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3 cursor-pointer" onclick="resetFilters()">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-500 to-brand-accent flex items-center justify-center text-white font-black text-xl shadow-lg shadow-brand-600/40">
-                        <i class="fa-solid font-bold fa-cube"></i>
-                    </div>
-                    <div>
-                        <span class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-white via-brand-100 to-brand-400 bg-clip-text text-transparent">HexVault</span>
-                        <span class="text-xs px-2 py-0.5 ml-1.5 rounded-md bg-brand-600/30 text-brand-400 border border-brand-500/30 font-semibold hidden sm:inline-block">ID Trans</span>
-                    </div>
-                </div>
-
-                <!-- Desktop Navigation Links & Search -->
-                <div class="hidden md:flex items-center space-x-6">
-                    <div class="relative w-64 lg:w-80">
-                        <input type="text" id="searchInput" oninput="handleSearch()" placeholder="Cari Visual Novel, Genre, atau Modder..." class="w-full bg-brand-dark/80 text-sm text-gray-200 placeholder-gray-400 rounded-xl pl-10 pr-4 py-2.5 border border-brand-500/20 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
-                    </div>
-
-                    <button onclick="toggleBookmarksOnly()" id="bookmarkToggleBtn" class="flex items-center space-x-2 text-sm font-medium px-4 py-2 rounded-xl bg-brand-card hover:bg-brand-600/20 text-gray-300 hover:text-brand-400 border border-brand-500/20 transition">
-                        <i class="fa-solid fa-bookmark text-amber-400"></i>
-                        <span>Tersimpan</span>
-                        <span id="bookmarkBadge" class="ml-1 bg-brand-600 text-white text-xs px-1.5 py-0.2 rounded-full hidden">0</span>
-                    </button>
-
-                    <button onclick="openGuideModal()" class="flex items-center space-x-2 text-sm font-medium text-gray-300 hover:text-brand-400 transition">
-                        <i class="fa-solid fa-book-open"></i>
-                        <span>Panduan</span>
-                    </button>
-
-                    <button onclick="openRequestModal()" class="flex items-center space-x-2 text-sm font-medium bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-brand-600/30 hover:shadow-brand-600/50 transition duration-200">
-                        <i class="fa-solid fa-paper-plane"></i>
-                        <span>Request Game</span>
-                    </button>
-                </div>
-
-                <!-- Mobile menu button -->
-                <div class="flex items-center space-x-3 md:hidden">
-                    <button onclick="toggleBookmarksOnly()" class="p-2 rounded-lg bg-brand-card text-amber-400 border border-brand-500/20">
-                        <i class="fa-solid fa-bookmark"></i>
-                    </button>
-                    <button onclick="toggleMobileMenu()" class="text-gray-300 hover:text-white p-2">
-                        <i class="fa-solid fa-bars text-xl" id="mobileMenuIcon"></i>
-                    </button>
-                </div>
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-50 glass">
+        <nav class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="https://nelsonsamuel044-cyber.github.io/hexvault/HexVault.png" alt="HexVault Logo" class="w-10 h-10 rounded-xl border border-brand-700 shadow-lg shadow-brand-900/50">
+                <span class="text-2xl font-extrabold text-brand-400">HexVault</span>
             </div>
-        </div>
-
-        <!-- Mobile search & navigation drawer -->
-        <div id="mobileMenu" class="hidden md:hidden px-4 pt-2 pb-4 border-t border-brand-500/20 bg-brand-dark/95">
-            <div class="my-3">
-                <input type="text" id="mobileSearchInput" oninput="handleMobileSearch()" placeholder="Cari Visual Novel..." class="w-full bg-brand-card text-sm text-gray-200 placeholder-gray-400 rounded-xl px-4 py-2.5 border border-brand-500/30 focus:outline-none">
-            </div>
-            <div class="flex flex-col space-y-2 text-sm">
-                <button onclick="openGuideModal(); toggleMobileMenu();" class="flex items-center space-x-3 text-gray-300 hover:text-white py-2 px-3 rounded-lg hover:bg-brand-card">
-                    <i class="fa-solid fa-book-open text-brand-400"></i>
-                    <span>Panduan Install Game</span>
-                </button>
-                <button onclick="openRequestModal(); toggleMobileMenu();" class="flex items-center space-x-3 text-gray-300 hover:text-white py-2 px-3 rounded-lg hover:bg-brand-card">
-                    <i class="fa-solid fa-paper-plane text-brand-400"></i>
-                    <span>Request Game / Laporkan Link Rusak</span>
-                </button>
-                <button onclick="openDonateModal(); toggleMobileMenu();" class="flex items-center space-x-3 text-gray-300 hover:text-white py-2 px-3 rounded-lg hover:bg-brand-card">
-                    <i class="fa-solid fa-heart text-pink-500"></i>
-                    <span>Dukung Translator (Traktir)</span>
+            <div class="flex items-center gap-3">
+                <a href="#" class="p-2.5 rounded-xl bg-brand-900/30 text-brand-400 border border-brand-800 hover:bg-brand-900/60 transition" title="Lihat Bookmark">
+                    <i class="fas fa-bookmark text-lg"></i>
+                </a>
+                <button class="md:hidden p-2.5 rounded-xl bg-darkAccent border border-border text-brand-400">
+                    <i class="fas fa-bars text-lg"></i>
                 </button>
             </div>
-        </div>
+        </nav>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
-        <!-- Hero Featured Carousel -->
-        <section class="mb-10 relative">
-            <div class="relative rounded-2xl overflow-hidden glass-panel border border-brand-500/30 shadow-2xl min-h-[340px] sm:min-h-[400px]">
-                <div id="heroBg" class="absolute inset-0 bg-cover bg-center transition-all duration-700 filter brightness-50 scale-105" style="background-image: url('https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=1200&auto=format&fit=crop');"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-transparent"></div>
-                <div class="absolute inset-0 bg-gradient-to-r from-brand-dark via-brand-dark/80 to-transparent"></div>
+    <main class="container mx-auto px-4 py-6">
 
-                <div class="relative z-10 p-6 sm:p-10 flex flex-col justify-end h-full min-h-[340px] sm:min-h-[400px] max-w-2xl">
-                    <div class="flex items-center space-x-2 mb-3">
-                        <span class="bg-brand-accent text-white font-bold text-xs px-2.5 py-1 rounded-md uppercase tracking-wider shadow-lg shadow-brand-accent/40">Rekomendasi Minggu Ini</span>
-                        <span id="heroEngine" class="bg-brand-600/80 text-white font-semibold text-xs px-2.5 py-1 rounded-md border border-brand-400/30">Ren'Py Engine</span>
+        <!-- GAME HERO / MAIN REKOMENDASI -->
+        <section class="mb-8 p-6 md:p-8 rounded-3xl relative overflow-hidden glass border-2 border-brand-800 shadow-xl shadow-brand-900/20"
+                 style="background-image: linear-gradient(rgba(15, 11, 30, 0.9), rgba(15, 11, 30, 0.95)), url('https://nelsonsamuel044-cyber.github.io/hexvault/Screenshot_20240909-064319.jpg'); background-size: cover; background-position: center;">
+            
+            <div class="relative z-10 grid md:grid-cols-3 gap-6 items-center">
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex flex-wrap gap-2">
+                        <span class="px-4 py-1.5 rounded-full text-xs font-semibold bg-pink-600 text-white shadow-lg shadow-pink-900/50">REKOMENDASI MINGGU INI</span>
+                        <span class="px-4 py-1.5 rounded-full text-xs font-semibold bg-brand-600 text-white shadow-lg shadow-brand-900/50">Ren'Py Engine</span>
                     </div>
-                    <h1 id="heroTitle" class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-2 leading-tight">Summer Memories: Indonesia Translation</h1>
-                    <p id="heroDesc" class="text-gray-300 text-xs sm:text-sm mb-4 line-clamp-2 sm:line-clamp-3">Visual novel santai tentang petualangan musim panas yang berkesan. Sepenuhnya diterjemahkan ke Bahasa Indonesia dengan opsi rute percakapan lokal!</p>
                     
-                    <div class="flex flex-wrap items-center gap-3">
-                        <button id="heroDetailBtn" class="bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-600 text-white font-semibold px-5 py-2.5 rounded-xl flex items-center space-x-2 shadow-lg shadow-brand-600/40 transition">
-                            <i class="fa-solid fa-circle-info"></i>
-                            <span>Lihat Game & Unduh</span>
-                        </button>
-                        <div class="flex items-center space-x-2 text-amber-400 text-sm bg-brand-dark/80 px-3 py-2 rounded-xl border border-brand-500/20">
-                            <i class="fa-solid fa-star"></i>
-                            <span id="heroRating" class="font-bold text-white">4.9 / 5.0</span>
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-white leading-tight">Summer Memories: <span class="text-brand-400">Indonesia Translation</span></h1>
+                    
+                    <p class="text-brand-100 max-w-2xl text-lg">
+                        Visual novel santai tentang petualangan musim panas yang berkesan. Sepenuhnya diterjemahkan ke Bahasa Indonesia.
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4 items-center pt-2">
+                        <a href="#" class="inline-flex items-center gap-2.5 px-8 py-3 rounded-2xl bg-brand-600 text-white font-bold text-lg hover:bg-brand-500 transition shadow-lg shadow-brand-900/50">
+                            <i class="fas fa-external-link-alt"></i>
+                            Lihat Game & Unduh
+                        </a>
+                        <div class="flex items-center gap-2 p-3 rounded-xl bg-darkAccent border border-border">
+                            <i class="fas fa-star text-yellow-400 text-xl"></i>
+                            <span class="text-xl font-bold text-yellow-300">4.9 / 5.0</span>
+                            <span class="text-sm text-brand-400">(2.3rb ulasan)</span>
                         </div>
                     </div>
                 </div>
+            </div>
+        </section>
 
-                <!-- Slider indicators -->
-                <div class="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex space-x-2 z-20" id="heroDots">
-                    <!-- Dots generated by JS -->
+        <!-- PENCARIAN & FILTER SECTION -->
+        <section class="mb-8 p-6 rounded-3xl glass shadow-lg shadow-black/20">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-filter text-2xl text-brand-400"></i>
+                    <h2 class="text-2xl font-bold">Filter Katalog Game</h2>
+                </div>
+                <button @click="resetFilters()" class="text-sm text-brand-400 hover:text-white transition">Reset Semua Filter</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Search Input -->
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-brand-600"></i>
+                    <input type="text" x-model="searchQuery" placeholder="Cari judul game (contoh: Summer Memories)" 
+                           class="w-full pl-12 pr-4 py-3.5 rounded-xl bg-darkAccent border border-border focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition text-brand-50">
+                </div>
+
+                <!-- Genre Filter -->
+                <div class="relative" x-data="{ open: false }">
+                    <button @click="open = !open" class="w-full flex items-center justify-between px-4 py-3.5 rounded-xl bg-darkAccent border border-border text-brand-400">
+                        <span x-text="genreFilter || 'Semua Genre'"></span>
+                        <i class="fas fa-chevron-down text-sm transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                    </button>
+                    <div x-show="open" @click.outside="open = false" x-cloak class="absolute top-full left-0 w-full mt-2 p-2 rounded-xl glass z-30 space-y-1 shadow-2xl">
+                        <template x-for="genre in availableGenres">
+                            <button @click="genreFilter = genre; open = false" x-text="genre" 
+                                    class="w-full text-left px-3 py-2 rounded-lg hover:bg-brand-900/50 transition text-brand-100"
+                                    :class="genreFilter === genre ? 'bg-brand-900' : ''"></button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Tags Filter -->
+                <div class="flex flex-wrap gap-2 p-3 rounded-xl bg-darkAccent/50 border border-border">
+                    <template x-for="tag in availableTags">
+                        <button @click="toggleTag(tag)" x-text="tag" 
+                                class="px-3 py-1.5 rounded-lg text-xs font-medium border transition"
+                                :class="selectedTags.includes(tag) ? 'filter-btn-active' : 'filter-btn-inactive'"></button>
+                    </template>
                 </div>
             </div>
         </section>
 
-        <!-- Filter and Search Bar -->
-        <section class="mb-8">
-            <div class="glass-panel p-4 sm:p-5 rounded-2xl border border-brand-500/20 shadow-xl space-y-4">
-                <div class="flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center space-x-2 text-brand-400 font-semibold">
-                        <i class="fa-solid fa-sliders text-lg"></i>
-                        <span>Filter Katalog Game</span>
-                    </div>
-                    <button onclick="resetFilters()" class="text-xs text-gray-400 hover:text-brand-400 underline transition">Reset Semua Filter</button>
+        <!-- DAFTAR GAME (GRID) -->
+        <section x-data="{ gridMode: true }" class="mb-12">
+            <div class="flex items-center justify-between mb-6 gap-3">
+                <div class="flex items-center gap-2">
+                    <p class="text-brand-400 text-lg">Menampilkan <span x-text="filteredGames().length" class="font-bold text-white text-xl"></span> Game</p>
                 </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                    <!-- Platform Filter -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Platform</label>
-                        <select id="filterPlatform" onchange="applyFilters()" class="w-full bg-brand-dark text-sm text-gray-200 rounded-xl px-3 py-2 border border-brand-500/30 focus:outline-none focus:border-brand-500">
-                            <option value="ALL">Semua Platform</option>
-                            <option value="Android">Android (APK)</option>
-                            <option value="PC">Windows PC</option>
-                        </select>
-                    </div>
-
-                    <!-- Engine Filter -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Game Engine</label>
-                        <select id="filterEngine" onchange="applyFilters()" class="w-full bg-brand-dark text-sm text-gray-200 rounded-xl px-3 py-2 border border-brand-500/30 focus:outline-none focus:border-brand-500">
-                            <option value="ALL">Semua Engine</option>
-                            <option value="Ren'Py">Ren'Py</option>
-                            <option value="RPG Maker">RPG Maker</option>
-                            <option value="Unity">Unity 3D/2D</option>
-                            <option value="KiriKiri">KiriKiri / Tyrano</option>
-                        </select>
-                    </div>
-
-                    <!-- Genre Filter -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Genre / Tag</label>
-                        <select id="filterGenre" onchange="applyFilters()" class="w-full bg-brand-dark text-sm text-gray-200 rounded-xl px-3 py-2 border border-brand-500/30 focus:outline-none focus:border-brand-500">
-                            <option value="ALL">Semua Genre</option>
-                            <option value="Romance">Romance</option>
-                            <option value="School Life">School Life</option>
-                            <option value="Mystery">Mystery / Thriller</option>
-                            <option value="Fantasy">Fantasy / Isekai</option>
-                            <option value="Comedy">Slice of Life / Comedy</option>
-                        </select>
-                    </div>
-
-                    <!-- Sort Filter -->
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Urutkan</label>
-                        <select id="filterSort" onchange="applyFilters()" class="w-full bg-brand-dark text-sm text-gray-200 rounded-xl px-3 py-2 border border-brand-500/30 focus:outline-none focus:border-brand-500">
-                            <option value="newest">Terbaru Ditambahkan</option>
-                            <option value="rating">Rating Tertinggi</option>
-                            <option value="popular">Paling Populer</option>
-                        </select>
-                    </div>
+                <div class="flex items-center gap-1.5 p-1 rounded-xl glass">
+                    <button @click="gridMode = true" class="p-2 rounded-lg transition" :class="gridMode ? 'bg-brand-900 text-brand-100' : 'text-brand-700 hover:text-brand-400'">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button @click="gridMode = false" class="p-2 rounded-lg transition" :class="!gridMode ? 'bg-brand-900 text-brand-100' : 'text-brand-700 hover:text-brand-400'">
+                        <i class="fas fa-list"></i>
+                    </button>
                 </div>
             </div>
-        </section>
 
-        <!-- Catalog Heading & Status -->
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h2 class="text-xl sm:text-2xl font-bold text-white flex items-center space-x-2">
-                    <span>Koleksi Visual Novel</span>
-                    <span id="activeFilterBadge" class="text-xs bg-brand-600/30 text-brand-300 border border-brand-500/30 px-2.5 py-1 rounded-full font-normal hidden">
-                        Bookmark Terpilih
-                    </span>
-                </h2>
-                <p id="resultCount" class="text-xs sm:text-sm text-gray-400 mt-1">Menampilkan 0 game</p>
+            <!-- Grid View -->
+            <div x-show="gridMode" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <template x-for="game in filteredGames()" :key="game.id">
+                    <div class="game-card-hover glass rounded-2xl flex flex-col group overflow-hidden border border-border shadow-black/30">
+                        <div class="relative overflow-hidden aspect-[3/4]">
+                            <img :src="game.posterUrl" :alt="game.title" class="w-full h-full object-cover">
+                            <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black via-black/70 to-transparent">
+                                <div class="flex items-center justify-between gap-1.5 mb-1">
+                                    <div class="flex flex-wrap gap-1.5">
+                                        <template x-for="tag in game.tags">
+                                            <span x-text="tag" class="px-2 py-0.5 rounded text-[10px] bg-brand-900/80 text-brand-100 border border-brand-800"></span>
+                                        </template>
+                                    </div>
+                                    <button @click="toggleBookmark(game)" class="text-brand-700 hover:text-pink-500 transition-colors">
+                                        <i class="fas fa-bookmark"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 flex-grow flex flex-col justify-between space-y-3">
+                            <div>
+                                <h3 x-text="game.title" class="font-semibold text-white group-hover:text-brand-300 transition line-clamp-2"></h3>
+                                <p x-text="game.genre" class="text-sm text-brand-400"></p>
+                            </div>
+                            <div class="flex items-center justify-between text-sm gap-2">
+                                <div class="flex items-center gap-1.5 text-yellow-400">
+                                    <i class="fas fa-star text-xs"></i>
+                                    <span x-text="game.rating.toFixed(1)" class="font-bold"></span>
+                                </div>
+                                <span x-text="game.fileSize" class="text-brand-100 font-mono text-xs p-1 rounded bg-brand-900/50"></span>
+                            </div>
+                            <a :href="game.detailsUrl" class="w-full text-center px-4 py-2.5 rounded-lg bg-darkAccent border border-border group-hover:bg-brand-600 group-hover:border-brand-500 group-hover:text-white transition font-medium">
+                                Detail
+                            </a>
+                        </div>
+                    </div>
+                </template>
             </div>
             
-            <div class="flex items-center space-x-2 bg-brand-card p-1 rounded-xl border border-brand-500/20 text-xs">
-                <button id="viewGridBtn" onclick="setViewMode('grid')" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white font-medium shadow"><i class="fa-solid fa-border-all"></i> Grid</button>
-                <button id="viewListBtn" onclick="setViewMode('list')" class="px-3 py-1.5 rounded-lg text-gray-400 hover:text-white font-medium"><i class="fa-solid fa-list"></i> List</button>
+            <!-- List View -->
+            <div x-show="!gridMode" x-cloak class="space-y-4">
+                <template x-for="game in filteredGames()" :key="game.id">
+                    <div class="game-card-hover glass rounded-xl flex items-center gap-4 p-3 border border-border shadow-black/30">
+                        <img :src="game.posterUrl" :alt="game.title" class="w-20 h-28 object-cover rounded-lg">
+                        <div class="flex-grow grid grid-cols-1 md:grid-cols-4 gap-3 items-center">
+                            <div class="md:col-span-2">
+                                <h3 x-text="game.title" class="font-semibold text-white group-hover:text-brand-300 transition"></h3>
+                                <p x-text="game.genre" class="text-sm text-brand-400"></p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-1.5 text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <span x-text="game.rating.toFixed(1)" class="font-bold"></span>
+                                </div>
+                                <span x-text="game.fileSize" class="text-brand-100 font-mono text-sm p-1 rounded bg-brand-900/50"></span>
+                            </div>
+                            <a :href="game.detailsUrl" class="text-center px-5 py-2 rounded-lg bg-darkAccent border border-border group-hover:bg-brand-600 group-hover:border-brand-500 group-hover:text-white transition">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </template>
             </div>
-        </div>
 
-        <!-- Catalog Grid Container -->
-        <div id="catalogContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <!-- Game Cards injected dynamically -->
-        </div>
+            <!-- No Results -->
+            <div x-show="filteredGames().length === 0" x-cloak class="text-center py-16 glass rounded-2xl space-y-4 border border-border shadow-inner shadow-black/50">
+                <i class="fas fa-search-minus text-6xl text-brand-800"></i>
+                <p class="text-2xl font-bold text-brand-400">Game Tidak Ditemukan</p>
+                <p class="text-brand-100">Cobalah kata kunci lain atau reset filter pencarian.</p>
+                <button @click="resetFilters()" class="px-6 py-2 rounded-lg bg-brand-600 text-white font-medium hover:bg-brand-500 transition">Reset Filter</button>
+            </div>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-16 bg-brand-card/40 rounded-2xl border border-brand-500/10">
-            <i class="fa-solid fa-ghost text-5xl text-brand-500/40 mb-4"></i>
-            <h3 class="text-lg font-semibold text-gray-300">Game tidak ditemukan</h3>
-            <p class="text-sm text-gray-500 mt-1 max-w-sm mx-auto">Coba gunakan kata kunci pencarian lain atau ubah filter pencarian Anda.</p>
-            <button onclick="resetFilters()" class="mt-4 px-4 py-2 bg-brand-600 text-white text-sm rounded-xl hover:bg-brand-500 transition">Reset Filter</button>
-        </div>
+        </section>
+
     </main>
 
-    <!-- Community Support Banner -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-10">
-        <div class="glass-panel rounded-2xl p-6 sm:p-8 border border-brand-500/30 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="relative z-10 max-w-xl">
-                <span class="text-xs font-bold text-pink-400 tracking-wider uppercase mb-1 block">Dukung Translator Lokal</span>
-                <h3 class="text-xl sm:text-2xl font-bold text-white mb-2">Suka dengan hasil terjemahan Bahasa Indonesia?</h3>
-                <p class="text-gray-300 text-sm">Bantu para translator dan modder untuk terus menghadirkan karya Visual Novel terbaru ber-Bahasa Indonesia melalui donasi ringan.</p>
+    <!-- FOOTER -->
+    <footer class="mt-auto glass border-t border-border">
+        <div class="container mx-auto px-4 py-8 text-center space-y-4">
+            <div class="flex items-center justify-center gap-2">
+                <img src="https://nelsonsamuel044-cyber.github.io/hexvault/HexVault.png" alt="HexVault Logo" class="w-8 h-8 rounded-lg">
+                <span class="text-xl font-bold text-brand-400">HexVault</span>
             </div>
-            <div class="relative z-10 flex flex-wrap gap-3">
-                <button onclick="openDonateModal()" class="bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-semibold px-6 py-3 rounded-xl shadow-lg shadow-pink-500/30 flex items-center space-x-2 transition">
-                    <i class="fa-solid fa-heart"></i>
-                    <span>Traktir Kopi / Saweria</span>
-                </button>
-                <button onclick="openGuideModal()" class="bg-brand-dark hover:bg-brand-card text-gray-200 border border-brand-500/30 px-5 py-3 rounded-xl text-sm font-semibold transition">
-                    <i class="fa-solid fa-circle-question mr-1"></i> Cara Pasang Patch
-                </button>
+            <p class="text-brand-400 max-w-md mx-auto">Katalog Visual Novel Indonesia. Dukung developer game & translator favoritmu.</p>
+            <div class="flex justify-center gap-6 text-2xl text-brand-600">
+                <a href="#" class="hover:text-brand-400"><i class="fab fa-discord"></i></a>
+                <a href="#" class="hover:text-brand-400"><i class="fab fa-github"></i></a>
+                <a href="#" class="hover:text-brand-400"><i class="fas fa-envelope"></i></a>
             </div>
-            <!-- Background glow decoration -->
-            <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-brand-600/20 rounded-full filter blur-3xl"></div>
+            <p class="text-sm text-brand-700pt-4">&copy; 2024 HexVault. Made with ❤️ in Indonesia.</p>
         </div>
-    </section>
+    </footer>
 
-    <!-- Footer -->
-    <footer class="bg-brand-dark border-t border-brand-500/20 text-gray-400 text-sm py-10 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                <div class="space-y-3">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold">
-                            <i class="fa-solid fa-cube"></i>
-                        </div>
-                        <span class="text-lg font-bold text-white">HexVault</span>
-                    </div>
-                    <p class="text-xs text-gray-400 leading-relaxed">Katalog & Arsip Vi
+    <!-- Alpine.js Data & Logic -->
+    <script>
+        function hexvaultData() {
+            return {
+                init() {
+                    console.log('HexVault Data initialized');
+                },
+                
+                // DATA CONTOH GAME
+                games: [
+                    {
+                        id: 1,
+                        title: 'Summer Memories: Indonesia Translation',
+                        genre: 'Slice of Life',
+                        rating: 4.9,
+                        fileSize: '750 MB',
+                        posterUrl: 'https://nelsonsamuel044-cyber.github.io/hexvault/Screenshot_20240909-064319.jpg',
+                        detailsUrl: '#',
+                        tags: ['Bahasa', 'RenPy']
+                    },
+                    {
+                        id: 2,
+                        title: 'Doki Doki Literature Club!',
+                        genre: 'Horror / Psychological',
+                        rating: 4.8,
+                        fileSize: '350 MB',
+                        posterUrl: 'https://cdn.akamai.steamstatic.com/steam/apps/698780/header.jpg',
+                        detailsUrl: '#',
+                        tags: ['Gratis', 'Terkenal']
+                    },
+                    {
+                        id: 3,
+                        title: 'Katawa Shoujo',
+                        genre: 'Drama / Romance',
+                        rating: 4.9,
+                        fileSize: '1.2 GB',
+                        posterUrl: 'https://upload.wikimedia.org/wikipedia/en/c/cd/Katawa_Shoujo_cover_art.jpg',
+                        detailsUrl: '#',
+                        tags: ['Gratis', 'RenPy']
+                    },
+                     {
+                        id: 4,
+                        title: 'Steins;Gate',
+                        genre: 'Sci-Fi / Adventure',
+                        rating: 5.0,
+                        fileSize: '4.5 GB',
+                        posterUrl: 'https://m.media-amazon.com/images/M/MV5BMjA4NTA0Mjk4NF5BMl5BanBnXkFtZTgwMDU2MjcxMjE@._V1_FMjpg_UX1000_.jpg',
+                        detailsUrl: '#',
+                        tags: ['PPC', 'Top']
+                    },
+                    {
+                        id: 5,
+                        title: 'Nekopara Vol. 1',
+                        genre: 'Comedy / Romance',
+                        rating: 4.7,
+                        fileSize: '1.8 GB',
+                        posterUrl: 'https://m.media-amazon.com/images/M/MV5BYTJjOTI1NDAtYWUxYi00MzgzLTk0YWEtZmI0NGRhZWRmYzllXkEyXkFqcGdeQXVyNjU1OTg4MjA@._V1_FMjpg_UX1000_.jpg',
+                        detailsUrl: '#',
+                        tags: ['Kucing', 'Unity']
+                    }
+                ],
+
+                // FILTER STATE
+                searchQuery: '',
+                genreFilter: '',
+                selectedTags: [],
+
+                // DEFINISI FILTER
+                availableGenres: ['', 'Slice of Life', 'Horror / Psychological', 'Drama / Romance', 'Sci-Fi / Adventure', 'Comedy / Romance'],
+                availableTags: ['Bahasa', 'Gratis', 'RenPy', 'Unity'],
+
+                // FUNGSI LOGIKA FILTER
+                filteredGames() {
+                    return this.games.filter(game => {
+                        // Pencarian Judul
+                        const searchMatch = !this.searchQuery || game.title.toLowerCase().includes(this.searchQuery.toLowerCase());
+                        // Filter Genre
+                        const genreMatch = !this.genreFilter || game.genre === this.genreFilter;
+                        // Filter Tags
+                        const tagsMatch = this.selectedTags.length === 0 || this.selectedTags.every(tag => game.tags.includes(tag));
+                        
+                        return searchMatch && genreMatch && tagsMatch;
+                    });
+    
